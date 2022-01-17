@@ -14,6 +14,7 @@ import org.chord.sim.common.protocol.constant.MsgType;
 public class RegisterRequestPacket extends Packet {
 
     private String userName;
+    private String passWord;
 
     @Override
     public Byte getCommand() {
@@ -31,5 +32,13 @@ public class RegisterRequestPacket extends Packet {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getPassWord() {
+        return passWord;
+    }
+
+    public void setPassWord(String passWord) {
+        this.passWord = passWord;
     }
 }

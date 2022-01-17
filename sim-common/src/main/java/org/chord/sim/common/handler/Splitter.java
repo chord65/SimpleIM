@@ -10,12 +10,12 @@ import org.chord.sim.common.protocol.PacketCodec;
  * date 2022/1/12 11:09
  * function:
  */
-public class Spliter extends LengthFieldBasedFrameDecoder {
+public class Splitter extends LengthFieldBasedFrameDecoder {
 
     private static final int LENGTH_FIELD_OFFSET = 16;
     private static final int LENGTH_FIELD_LENGTH = 4;
 
-    public Spliter() {
+    public Splitter() {
         super(Integer.MAX_VALUE, LENGTH_FIELD_OFFSET, LENGTH_FIELD_LENGTH);
     }
 
