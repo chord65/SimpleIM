@@ -28,6 +28,17 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.chord</groupId>
+            <artifactId>sim-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.5.9</version>
+        </dependency>
+
     </dependencies>
 
 </project>
