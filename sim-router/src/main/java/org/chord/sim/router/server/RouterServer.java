@@ -9,6 +9,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.chord.sim.common.handler.PacketCodecHandler;
 import org.chord.sim.common.handler.Splitter;
+import org.chord.sim.router.handler.LogInRequestHandler;
 import org.chord.sim.router.handler.RegisterRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,8 @@ public class RouterServer {
                         channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         // 处理注册请求
                         channel.pipeline().addLast(RegisterRequestHandler.INSTANCE);
+                        // 处理登录请求
+                        channel.pipeline().addLast(LogInRequestHandler.INSTANCE);
                     }
                 });
 
@@ -68,9 +71,9 @@ public class RouterServer {
     private static void bind(final ServerBootstrap serverBootstrap, final int port) {
         serverBootstrap.bind(port).addListener(future -> {
             if (future.isSuccess()) {
-                System.out.println(new Date() + ": 端口[" + port + "]绑定成功!");
+                LOGGER.info(new Date() + ": 端口[" + port + "]绑定成功!");
             } else {
-                System.err.println("端口[" + port + "]绑定失败!");
+                LOGGER.error("端口[" + port + "]绑定失败!");
             }
         });
     }

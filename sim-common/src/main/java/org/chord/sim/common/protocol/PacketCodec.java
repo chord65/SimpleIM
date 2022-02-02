@@ -3,7 +3,11 @@ package org.chord.sim.common.protocol;
 import io.netty.buffer.ByteBuf;
 import org.chord.sim.common.protocol.constant.Command;
 import org.chord.sim.common.protocol.constant.MsgType;
+import org.chord.sim.common.protocol.request.AuthenRequestPacket;
+import org.chord.sim.common.protocol.request.LogInRequestPacket;
 import org.chord.sim.common.protocol.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.response.AuthenResponsePacket;
+import org.chord.sim.common.protocol.response.LogInResponsePacket;
 import org.chord.sim.common.protocol.response.RegisterResponsePacket;
 import org.chord.sim.common.serializer.Serializer;
 import org.chord.sim.common.serializer.impl.JSONSerializer;
@@ -29,6 +33,12 @@ public class PacketCodec {
         packetTypeMap = new HashMap<>();
         packetTypeMap.put(getPacketTypeCode(Command.REGISTER, MsgType.REQUEST), RegisterRequestPacket.class);
         packetTypeMap.put(getPacketTypeCode(Command.REGISTER, MsgType.RESPONSE), RegisterResponsePacket.class);
+
+        packetTypeMap.put(getPacketTypeCode(Command.LOGIN, MsgType.REQUEST), LogInRequestPacket.class);
+        packetTypeMap.put(getPacketTypeCode(Command.LOGIN, MsgType.RESPONSE), LogInResponsePacket.class);
+
+        packetTypeMap.put(getPacketTypeCode(Command.AUTHEN, MsgType.REQUEST), AuthenRequestPacket.class);
+        packetTypeMap.put(getPacketTypeCode(Command.AUTHEN, MsgType.RESPONSE), AuthenResponsePacket.class);
 
         serializerMap = new HashMap<>();
         Serializer serializer = new JSONSerializer();

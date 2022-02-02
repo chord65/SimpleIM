@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.chord.sim.common.handler.PacketCodecHandler;
 import org.chord.sim.common.handler.Splitter;
 import org.chord.sim.server.Util.ZkUtil;
+import org.chord.sim.server.handler.AuthenRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,8 @@ public class SIMServer {
                         channel.pipeline().addLast(new Splitter());
                         // 编解码
                         channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
+                        // 处理认证请求
+                        channel.pipeline().addLast(AuthenRequestHandler.INSTANCE);
                     }
                 });
 

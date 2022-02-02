@@ -17,6 +17,7 @@ public class ConsoleCommandManager implements ConsoleCommand{
     public ConsoleCommandManager() {
         consoleCommandMap = new HashMap<>();
         consoleCommandMap.put("register", new RegisterConsoleCommand());
+        consoleCommandMap.put("login", new LogInConsoleCommand());
     }
 
     @Override

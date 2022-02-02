@@ -2,11 +2,15 @@ package org.chord.sim.router.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.chord.sim.common.pojo.User;
+import org.chord.sim.common.protocol.request.LogInRequestPacket;
 import org.chord.sim.common.protocol.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.response.LogInResponsePacket;
 import org.chord.sim.common.protocol.response.RegisterResponsePacket;
 import org.chord.sim.common.protocol.response.status.Status;
 import org.chord.sim.common.util.RedisKeyUtil;
 import org.chord.sim.common.util.SIMUtils;
+import org.chord.sim.router.Cache.ServerListCache;
+import org.chord.sim.router.service.RouteService;
 import org.chord.sim.router.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author chord
@@ -32,6 +37,12 @@ public class UserServiceRedisImpl implements UserService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private ServerListCache serverListCache;
+
+    @Autowired
+    private RouteService routeService;
 
     @PostConstruct
     private void init() {
@@ -105,6 +116,50 @@ public class UserServiceRedisImpl implements UserService {
         // 设置响应信息
         responsePacket.setStatus(Status.OK);
         responsePacket.setUserId(userId.toString());
+
+        return responsePacket;
+    }
+
+    @Override
+    public LogInResponsePacket logIn(LogInRequestPacket requestPacket) throws Exception {
+
+        LogInResponsePacket responsePacket = new LogInResponsePacket();
+        responsePacket.setRequestSeqNumber(requestPacket.getSeqNumber());
+
+        String userId = requestPacket.getUserId();
+
+        // 验证账户
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        User user = (User) redisTemplate.opsForValue().get(userKey);
+        if (user == null) {
+            responsePacket.setStatus(Status.FAILED);
+            responsePacket.setMsg("用户不存在！");
+            return responsePacket;
+        }
+
+        // 验证密码
+        String passWord = SIMUtils.md5(requestPacket.getPassWord());
+        if (!passWord.equals(user.getPassWord())) {
+            responsePacket.setStatus(Status.FAILED);
+            responsePacket.setMsg("密码错误！");
+            return responsePacket;
+        }
+
+        // 生成登录凭证
+        String ticket = SIMUtils.generateUUID();
+        String ticketKey = RedisKeyUtil.getLogInTicketKey(ticket);
+        redisTemplate.opsForValue().set(ticketKey, userId, 24, TimeUnit.HOURS);
+
+        responsePacket.setLogInTicket(ticket);
+
+        // 路由到一个chat服务器
+        String serverAddress = routeService.getServerAddress(serverListCache.getServerList());
+
+        responsePacket.setServerAddress(serverAddress);
+
+        responsePacket.setStatus(Status.OK);
+        responsePacket.setMsg("登录成功！");
+        responsePacket.setUserName(user.getUserName());
 
         return responsePacket;
     }

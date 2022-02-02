@@ -5,12 +5,17 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.chord.sim.client.handler.AuthenResponseHandler;
+import org.chord.sim.client.handler.LogInResponseHandler;
 import org.chord.sim.client.handler.RegisterResponseHandler;
 import org.chord.sim.client.util.SpringUtils;
 import org.chord.sim.common.handler.PacketCodecHandler;
 import org.chord.sim.common.handler.Splitter;
 import org.chord.sim.common.pojo.User;
+import org.chord.sim.common.protocol.request.AuthenRequestPacket;
+import org.chord.sim.common.protocol.request.LogInRequestPacket;
 import org.chord.sim.common.protocol.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.response.AuthenResponsePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,10 +47,7 @@ public class SIMClient {
     @Value("${sim.router.port}")
     private int routerPort;
 
-    @Value("${sim.server.host}")
     private String serverHost;
-
-    @Value("${sim.server.port}")
     private int serverPort;
 
     private Bootstrap bootstrapToRouter;
@@ -54,6 +57,8 @@ public class SIMClient {
     private volatile Channel channelToServer;
 
     private volatile User userInfo = new User();
+
+    private volatile String logInTicket;
 
     /**
      * 连接router服务器
@@ -79,22 +84,50 @@ public class SIMClient {
                         channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         // 处理注册响应
                         channel.pipeline().addLast(RegisterResponseHandler.INSTANCE);
+                        // 处理登录响应
+                        channel.pipeline().addLast(LogInResponseHandler.INSTANCE);
                     }
                 });
 
         connect(bootstrapToRouter, routerHost, routerPort, MAX_RETRY);
     }
 
+    public void connectToServer() {
+
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+
+        bootstrapToServer = new Bootstrap();
+        bootstrapToServer
+                .group(workerGroup)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel channel) throws Exception {
+                        // 拆包
+                        channel.pipeline().addLast(new Splitter());
+                        // 编解码
+                        channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
+                        // 处理认证响应
+                        channel.pipeline().addLast(AuthenResponseHandler.INSTANCE);
+                    }
+                });
+
+        connect(bootstrapToServer, serverHost, serverPort, MAX_RETRY);
+    }
+
     private void connect(Bootstrap bootstrap, String host, int port, int retry) {
         bootstrap.connect(host, port).addListener(future -> {
             if (future.isSuccess()) {
                 if (bootstrap == this.bootstrapToRouter) {
-                    LOGGER.info("路由服务器连接成功！");
                     this.channelToRouter = ((ChannelFuture) future).channel();
+                    LOGGER.info("路由服务器连接成功！");
                 }
                 if (bootstrap == this.bootstrapToServer) {
-                    LOGGER.info("服务器连接成功！");
                     this.channelToServer = ((ChannelFuture) future).channel();
+                    LOGGER.info("服务器连接成功！");
                 }
             } else if (retry == 0) {
                 LOGGER.error("重试次数已用完，放弃连接！");
@@ -112,7 +145,6 @@ public class SIMClient {
     /**
      * 注册功能
      */
-
     public void register(String userName, String passWord) {
         RegisterRequestPacket requestPacket = new RegisterRequestPacket();
         requestPacket.setUserName(userName);
@@ -121,11 +153,57 @@ public class SIMClient {
         this.channelToRouter.writeAndFlush(requestPacket);
     }
 
+    /**
+     * 登录功能
+     */
+    public void logIn(String userId, String password) {
+        LogInRequestPacket requestPacket = new LogInRequestPacket();
+        requestPacket.setUserId(userId);
+        requestPacket.setPassWord(password);
+
+        this.channelToRouter.writeAndFlush(requestPacket);
+    }
+
+    /**
+     * 认证功能
+     */
+    public void authentication() throws InterruptedException {
+
+        while (channelToServer == null) Thread.sleep(10);
+
+        AuthenRequestPacket requestPacket = new AuthenRequestPacket();
+        requestPacket.setLogInTicket(logInTicket);
+
+        this.channelToServer.writeAndFlush(requestPacket);
+
+        LOGGER.info("发送认证请求。。。");
+    }
+
     public User getUserInfo() {
         return userInfo;
     }
 
     public boolean isLogIn() {
         return hasLogIn;
+    }
+
+    public void setLogInStatus(boolean hasLogIn) {
+        this.hasLogIn = hasLogIn;
+    }
+
+    public void setServerHost(String serverHost) {
+        this.serverHost = serverHost;
+    }
+
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
+    }
+
+    public String getLogInTicket() {
+        return logInTicket;
+    }
+
+    public void setLogInTicket(String logInTicket) {
+        this.logInTicket = logInTicket;
     }
 }

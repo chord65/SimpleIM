@@ -1,6 +1,8 @@
 package org.chord.sim.router.service;
 
+import org.chord.sim.common.protocol.request.LogInRequestPacket;
 import org.chord.sim.common.protocol.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.response.LogInResponsePacket;
 import org.chord.sim.common.protocol.response.RegisterResponsePacket;
 
 /**
@@ -23,5 +25,6 @@ public interface UserService {
      */
     public RegisterResponsePacket register(RegisterRequestPacket registerRequestPacket) throws Exception;
 
+    public LogInResponsePacket logIn(LogInRequestPacket logInRequestPacket) throws Exception;
 
 }
