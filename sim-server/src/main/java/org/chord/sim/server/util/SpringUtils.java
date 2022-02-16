@@ -1,4 +1,4 @@
-package org.chord.sim.server.Util;
+package org.chord.sim.server.util;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

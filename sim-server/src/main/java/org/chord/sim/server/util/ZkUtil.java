@@ -1,4 +1,4 @@
-package org.chord.sim.server.Util;
+package org.chord.sim.server.util;
 
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;

@@ -9,7 +9,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.chord.sim.common.handler.PacketCodecHandler;
 import org.chord.sim.common.handler.Splitter;
-import org.chord.sim.server.Util.ZkUtil;
+import org.chord.sim.server.handler.P2pChatRequestHandler;
+import org.chord.sim.server.handler.PullMessagesRequestHandler;
+import org.chord.sim.server.util.ZkUtil;
 import org.chord.sim.server.handler.AuthenRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +22,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.Inet4Address;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 
 @Component
 public class SIMServer {
@@ -59,6 +59,10 @@ public class SIMServer {
                         channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         // 处理认证请求
                         channel.pipeline().addLast(AuthenRequestHandler.INSTANCE);
+                        // 处理单聊请求
+                        channel.pipeline().addLast(P2pChatRequestHandler.INSTANCE);
+                        // 处理离线消息拉取请求
+                        channel.pipeline().addLast(PullMessagesRequestHandler.INSTANCE);
                     }
                 });
 
@@ -79,6 +83,8 @@ public class SIMServer {
      */
     @PreDestroy
     public void shutDown() {
+
+        LOGGER.info("shutdown gracefully");
 
         // 删除zookeeper节点
         zkUtil.delServerNode();

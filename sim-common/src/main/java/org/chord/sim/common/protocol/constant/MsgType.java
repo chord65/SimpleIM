@@ -9,6 +9,6 @@ public interface MsgType {
 
     static final byte REQUEST = 1;
     static final byte RESPONSE = 2;
-    static final byte NOTIFICATION = 3;
+    static final byte NOTIFY = 3;
 
 }

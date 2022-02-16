@@ -1,16 +1,19 @@
 package org.chord.sim.server.service;
 
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.chord.sim.common.pojo.User;
 import org.chord.sim.common.protocol.request.AuthenRequestPacket;
 import org.chord.sim.common.protocol.response.AuthenResponsePacket;
 import org.chord.sim.common.protocol.response.status.Status;
 import org.chord.sim.common.util.RedisKeyUtil;
+import org.chord.sim.server.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
@@ -21,7 +24,7 @@ import java.net.UnknownHostException;
  * function:
  */
 
-@Component
+@Service
 public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
@@ -60,6 +63,10 @@ public class UserService {
         // 记录userId和对应的channel
         sessionService.putChannel(userId, channel);
 
+        // 为channel设置USER_ID属性，并绑定对应的session
+        Session session = new Session(userId, getUserById(userId).getUserName());
+        sessionService.bindSession(session, channel);
+
         responsePacket.setStatus(Status.OK);
         responsePacket.setMsg("认证成功！");
 
@@ -68,4 +75,24 @@ public class UserService {
         return responsePacket;
     }
 
+    public User getUserById(String userID) {
+        String redisKey = RedisKeyUtil.getUserKey(userID);
+        return (User) redisTemplate.opsForValue().get(redisKey);
+    }
+
+    public String getUserNameById(String userID) {
+        User user = getUserById(userID);
+        return user.getUserName();
+    }
+
+    public void logout(String userId) {
+        // 移除与channel的对应关系
+        sessionService.removeChannel(userId);
+        // 移除session
+        sessionService.removeSession(userId);
+        // 移除与服务器地址的对应关系
+        sessionService.removeServerAddress(userId);
+
+        LOGGER.info("user:{} logout", userId);
+    }
 }

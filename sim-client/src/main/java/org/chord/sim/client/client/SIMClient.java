@@ -5,25 +5,18 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.chord.sim.client.handler.AuthenResponseHandler;
-import org.chord.sim.client.handler.LogInResponseHandler;
-import org.chord.sim.client.handler.RegisterResponseHandler;
-import org.chord.sim.client.util.SpringUtils;
+import org.chord.sim.client.handler.*;
 import org.chord.sim.common.handler.PacketCodecHandler;
 import org.chord.sim.common.handler.Splitter;
 import org.chord.sim.common.pojo.User;
-import org.chord.sim.common.protocol.request.AuthenRequestPacket;
-import org.chord.sim.common.protocol.request.LogInRequestPacket;
-import org.chord.sim.common.protocol.request.RegisterRequestPacket;
-import org.chord.sim.common.protocol.response.AuthenResponsePacket;
+import org.chord.sim.common.protocol.request.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
-import java.util.Queue;
+import javax.annotation.PreDestroy;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -112,6 +105,12 @@ public class SIMClient {
                         channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         // 处理认证响应
                         channel.pipeline().addLast(AuthenResponseHandler.INSTANCE);
+                        // 处理单聊响应
+                        channel.pipeline().addLast(P2pChatResponseHandler.INSTANCE);
+                        // 处理单聊消息通知
+                        channel.pipeline().addLast(P2pChatNotifyHandler.INSTANCE);
+                        // 处理消息拉取响应
+                        channel.pipeline().addLast(PullMessagesResponseHandler.INSTANCE);
                     }
                 });
 
@@ -177,6 +176,43 @@ public class SIMClient {
         this.channelToServer.writeAndFlush(requestPacket);
 
         LOGGER.info("发送认证请求。。。");
+    }
+
+    /**
+     * 单聊功能
+     */
+    public void p2pChat(String toUserId, String msg) {
+
+        P2pChatRequestPacket requestPacket = new P2pChatRequestPacket();
+        requestPacket.setFromUserId(this.userInfo.getUserId());
+        requestPacket.setToUserId(toUserId);
+        requestPacket.setMsg(msg);
+
+        this.channelToServer.writeAndFlush(requestPacket);
+    }
+
+    /**
+     * 拉取离线消息
+     */
+    public void PullMessages() {
+
+        PullMessagesRequestPacket requestPacket = new PullMessagesRequestPacket();
+        requestPacket.setToUserId(userInfo.getUserId());
+
+        channelToServer.writeAndFlush(requestPacket);
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        LOGGER.info("shutdown gracefully");
+
+        if (channelToServer != null) {
+            channelToServer.close();
+        }
+        if (channelToRouter != null) {
+            channelToRouter.close();
+        }
+
     }
 
     public User getUserInfo() {

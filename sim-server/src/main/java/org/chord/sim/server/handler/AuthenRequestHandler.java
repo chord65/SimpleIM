@@ -1,5 +1,6 @@
 package org.chord.sim.server.handler;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -7,9 +8,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.chord.sim.common.protocol.request.AuthenRequestPacket;
 import org.chord.sim.common.protocol.response.AuthenResponsePacket;
 import org.chord.sim.common.protocol.response.status.Status;
-import org.chord.sim.server.Util.SpringUtils;
+import org.chord.sim.server.server.attribute.ChannelAttributes;
+import org.chord.sim.server.util.SpringUtils;
 import org.chord.sim.server.service.UserService;
-import org.springframework.data.redis.core.RedisTemplate;
+
+import javax.print.attribute.Attribute;
 
 /**
  * @author chord
@@ -37,5 +40,15 @@ public class AuthenRequestHandler extends SimpleChannelInboundHandler<AuthenRequ
         if (responsePacket.getStatus() == Status.FAILED) {
             ctx.channel().close();
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // 对用户做下线操作
+        Channel channel = ctx.channel();
+        String userId = channel.attr(ChannelAttributes.USER_ID).get();
+        userService.logout(userId);
+
+        super.channelInactive(ctx);
     }
 }

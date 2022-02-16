@@ -3,12 +3,9 @@ package org.chord.sim.common.protocol;
 import io.netty.buffer.ByteBuf;
 import org.chord.sim.common.protocol.constant.Command;
 import org.chord.sim.common.protocol.constant.MsgType;
-import org.chord.sim.common.protocol.request.AuthenRequestPacket;
-import org.chord.sim.common.protocol.request.LogInRequestPacket;
-import org.chord.sim.common.protocol.request.RegisterRequestPacket;
-import org.chord.sim.common.protocol.response.AuthenResponsePacket;
-import org.chord.sim.common.protocol.response.LogInResponsePacket;
-import org.chord.sim.common.protocol.response.RegisterResponsePacket;
+import org.chord.sim.common.protocol.notify.P2pChatNotifyPacket;
+import org.chord.sim.common.protocol.request.*;
+import org.chord.sim.common.protocol.response.*;
 import org.chord.sim.common.serializer.Serializer;
 import org.chord.sim.common.serializer.impl.JSONSerializer;
 
@@ -39,6 +36,13 @@ public class PacketCodec {
 
         packetTypeMap.put(getPacketTypeCode(Command.AUTHEN, MsgType.REQUEST), AuthenRequestPacket.class);
         packetTypeMap.put(getPacketTypeCode(Command.AUTHEN, MsgType.RESPONSE), AuthenResponsePacket.class);
+
+        packetTypeMap.put(getPacketTypeCode(Command.P2P_CHAT, MsgType.REQUEST), P2pChatRequestPacket.class);
+        packetTypeMap.put(getPacketTypeCode(Command.P2P_CHAT, MsgType.RESPONSE), P2pChatResponsePacket.class);
+        packetTypeMap.put(getPacketTypeCode(Command.P2P_CHAT, MsgType.NOTIFY), P2pChatNotifyPacket.class);
+
+        packetTypeMap.put(getPacketTypeCode(Command.PULL_MESSAGES, MsgType.REQUEST), PullMessagesRequestPacket.class);
+        packetTypeMap.put(getPacketTypeCode(Command.PULL_MESSAGES, MsgType.RESPONSE), PullMessagesResponsePacket.class);
 
         serializerMap = new HashMap<>();
         Serializer serializer = new JSONSerializer();

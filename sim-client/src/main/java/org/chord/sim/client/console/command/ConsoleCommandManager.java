@@ -18,6 +18,8 @@ public class ConsoleCommandManager implements ConsoleCommand{
         consoleCommandMap = new HashMap<>();
         consoleCommandMap.put("register", new RegisterConsoleCommand());
         consoleCommandMap.put("login", new LogInConsoleCommand());
+        consoleCommandMap.put("p2p_chat", new P2pChatCommand());
+        consoleCommandMap.put("pull_messages", new PullMessagesCommand());
     }
 
     @Override
