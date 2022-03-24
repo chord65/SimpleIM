@@ -4,8 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
-import org.chord.sim.common.protocol.Packet;
-import org.chord.sim.common.protocol.PacketCodec;
+import org.chord.sim.common.protocol.chat.Packet;
+import org.chord.sim.common.protocol.chat.codec.ChatPacketCodec;
+import org.chord.sim.common.protocol.chat.codec.factory.ChatPacketCodecFactory;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ public class PacketCodecHandler extends MessageToMessageCodec<ByteBuf, Packet> {
 
     public static final PacketCodecHandler INSTANCE = new PacketCodecHandler();
 
+    private ChatPacketCodec packetCodec = new ChatPacketCodecFactory().getCodec();
+
     private PacketCodecHandler() {
 
     }
@@ -27,12 +30,14 @@ public class PacketCodecHandler extends MessageToMessageCodec<ByteBuf, Packet> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, List<Object> out) throws Exception {
         ByteBuf byteBuf = ctx.channel().alloc().ioBuffer();
-        PacketCodec.INSTANCE.encode(byteBuf, packet);
+        packetCodec.encode(byteBuf, packet);
         out.add(byteBuf);
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) throws Exception {
-        out.add(PacketCodec.INSTANCE.decode(byteBuf));
+        out.add(packetCodec.decode(byteBuf));
     }
+
+
 }

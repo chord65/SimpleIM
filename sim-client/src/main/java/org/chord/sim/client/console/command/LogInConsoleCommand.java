@@ -20,11 +20,12 @@ public class LogInConsoleCommand implements ConsoleCommand{
         String passWord;
 
         System.out.println("输入用户ID：");
-        userId = scanner.next();
+        userId = scanner.nextLine();
         System.out.println("输入密码：");
-        passWord = scanner.next();
+        passWord = scanner.nextLine();
 
         simClient.getUserInfo().setUserId(userId);
+        simClient.getUserInfo().setPassWord(passWord);
 
         simClient.logIn(userId, passWord);
     }

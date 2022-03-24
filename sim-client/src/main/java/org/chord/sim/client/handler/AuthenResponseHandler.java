@@ -3,7 +3,7 @@ package org.chord.sim.client.handler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.chord.sim.common.protocol.response.AuthenResponsePacket;
+import org.chord.sim.common.protocol.chat.response.AuthenResponsePacket;
 
 /**
  * @author chord

@@ -3,9 +3,9 @@ package org.chord.sim.server.handler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.chord.sim.common.protocol.request.P2pChatRequestPacket;
-import org.chord.sim.common.protocol.response.P2pChatResponsePacket;
-import org.chord.sim.server.service.ChatService;
+import org.chord.sim.common.protocol.chat.request.P2pChatRequestPacket;
+import org.chord.sim.common.protocol.chat.response.P2pChatResponsePacket;
+import org.chord.sim.server.api.ChatService;
 import org.chord.sim.server.util.SpringUtils;
 
 /**
@@ -26,7 +26,7 @@ public class P2pChatRequestHandler extends SimpleChannelInboundHandler<P2pChatRe
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, P2pChatRequestPacket requestPacket) throws Exception {
-        P2pChatResponsePacket responsePacket = chatService.P2pChat(requestPacket);
+        P2pChatResponsePacket responsePacket = (P2pChatResponsePacket) chatService.P2pChat(requestPacket);
         ctx.writeAndFlush(responsePacket);
     }
 }

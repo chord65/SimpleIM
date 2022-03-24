@@ -3,8 +3,8 @@ package org.chord.sim.router.handler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.chord.sim.common.protocol.request.LogInRequestPacket;
-import org.chord.sim.common.protocol.response.LogInResponsePacket;
+import org.chord.sim.common.protocol.chat.request.LogInRequestPacket;
+import org.chord.sim.common.protocol.chat.response.LogInResponsePacket;
 import org.chord.sim.router.service.UserService;
 import org.chord.sim.router.util.SpringUtils;
 

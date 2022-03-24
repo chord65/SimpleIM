@@ -5,8 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.chord.sim.client.client.SIMClient;
 import org.chord.sim.client.util.SpringUtils;
-import org.chord.sim.common.protocol.response.LogInResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
+import org.chord.sim.common.protocol.chat.response.LogInResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 
 /**
  * @author chord
@@ -48,6 +48,7 @@ public class LogInResponseHandler extends SimpleChannelInboundHandler<LogInRespo
         // 设置登录状态
         simClient.setLogInStatus(true);
         System.out.println("登录成功！");
+        System.out.println("服务器地址为： " + simClient.getServerHost() + ":" + simClient.getServerPort());
 
         System.out.println(responsePacket.getUserName());
         System.out.println(responsePacket.getLogInTicket());
@@ -55,6 +56,7 @@ public class LogInResponseHandler extends SimpleChannelInboundHandler<LogInRespo
         // 连接到chat服务器
         simClient.connectToServer();
 
+        // 进行认证
         simClient.authentication();
     }
 }

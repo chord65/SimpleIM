@@ -3,8 +3,8 @@ package org.chord.sim.client.handler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.chord.sim.common.protocol.response.P2pChatResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
+import org.chord.sim.common.protocol.chat.response.P2pChatResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 
 /**
  * @author chord

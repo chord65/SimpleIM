@@ -1,6 +1,7 @@
 import org.chord.sim.common.util.SIMUtils;
 import org.chord.sim.server.SIMServerApplication;
 import org.chord.sim.server.entity.Message;
+import org.chord.sim.server.service.ChatService;
 import org.chord.sim.server.service.MessageService;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

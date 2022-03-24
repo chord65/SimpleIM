@@ -21,9 +21,9 @@ public class RegisterConsoleCommand implements ConsoleCommand{
         String passWord;
 
         System.out.println("输入用户名：");
-        userName = scanner.next();
+        userName = scanner.nextLine();
         System.out.println("输入密码：");
-        passWord = scanner.next();
+        passWord = scanner.nextLine();
 
         simClient.register(userName, passWord);
     }

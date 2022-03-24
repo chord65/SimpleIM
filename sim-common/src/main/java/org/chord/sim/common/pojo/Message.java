@@ -15,7 +15,7 @@ public class Message {
     private String fromUserName;
     private String msgId;
     private String seqNumber;
-    private int msgType;
+    private Integer msgType;
     private String msgContent;
 
 }

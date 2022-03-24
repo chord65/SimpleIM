@@ -1,7 +1,7 @@
-import org.chord.sim.common.protocol.Packet;
-import org.chord.sim.common.protocol.PacketCodec;
-import org.chord.sim.common.protocol.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.chat.request.RegisterRequestPacket;
 import org.junit.Test;
+
+import java.util.Random;
 
 /**
  * @author chord
@@ -13,9 +13,16 @@ public class LombokTest {
     @Test
     public void testPacket() {
 
-        RegisterRequestPacket registerRequestPacket = new RegisterRequestPacket();
-        System.out.println(registerRequestPacket.getSeqNumber());
+        // RegisterRequestPacket registerRequestPacket = new RegisterRequestPacket();
+        // System.out.println(registerRequestPacket.getSeqNumber());
 
+        Integer i = null;
+        i = getInt();
+        System.out.println(i);
+    }
+
+    int getInt() {
+        return 2;
     }
 
 }

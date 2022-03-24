@@ -1,5 +1,6 @@
 package org.chord.sim.server.service;
 
+import io.netty.channel.Channel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.chord.sim.common.util.RedisKeyUtil;
 import org.chord.sim.server.server.attribute.ChannelAttributes;
@@ -9,6 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,5 +77,9 @@ public class SessionService {
 
     public void removeSession(String userId) {
         sessionMap.remove(userId);
+    }
+
+    public List<String> getUserIdList() {
+        return new ArrayList<>(sessionMap.keySet());
     }
 }

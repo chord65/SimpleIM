@@ -7,12 +7,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.chord.sim.common.handler.IMIdleStateHandler;
 import org.chord.sim.common.handler.PacketCodecHandler;
 import org.chord.sim.common.handler.Splitter;
-import org.chord.sim.server.handler.P2pChatRequestHandler;
-import org.chord.sim.server.handler.PullMessagesRequestHandler;
+import org.chord.sim.common.util.IdleProcessPolicy;
+import org.chord.sim.server.handler.*;
+import org.chord.sim.server.service.SessionService;
+import org.chord.sim.server.service.UserService;
+import org.chord.sim.server.util.SpringUtils;
 import org.chord.sim.server.util.ZkUtil;
-import org.chord.sim.server.handler.AuthenRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.List;
 
 @Component
 public class SIMServer {
@@ -31,6 +35,12 @@ public class SIMServer {
 
     @Autowired
     private ZkUtil zkUtil;
+
+    @Autowired
+    private SessionService sessionService;
+
+    @Autowired
+    private UserService userService;
 
     private EventLoopGroup bossGroup = new NioEventLoopGroup();
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -53,16 +63,22 @@ public class SIMServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel channel) throws Exception {
+                        // 空闲检测
+                        channel.pipeline().addLast(new IMIdleStateHandler(SpringUtils.getBean(IdleProcessPolicy.class)));
                         // 拆包
                         channel.pipeline().addLast(new Splitter());
                         // 编解码
                         channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         // 处理认证请求
                         channel.pipeline().addLast(AuthenRequestHandler.INSTANCE);
+                        // 处理心跳求情
+                        channel.pipeline().addLast(HeartBeatRequestHandler.INSTANCE);
                         // 处理单聊请求
                         channel.pipeline().addLast(P2pChatRequestHandler.INSTANCE);
                         // 处理离线消息拉取请求
                         channel.pipeline().addLast(PullMessagesRequestHandler.INSTANCE);
+                        // 处理消息接收响应
+                        channel.pipeline().addLast(MessageReceiveResponseHandler.INSTANCE);
                     }
                 });
 
@@ -90,6 +106,12 @@ public class SIMServer {
         zkUtil.delServerNode();
         // 断开zookeeper连接
         zkUtil.disconnect();
+
+        // 对所有连接的用户执行下线操作
+        List<String> userIdList = sessionService.getUserIdList();
+        for (String userId : userIdList) {
+            userService.logout(userId);
+        }
 
     }
 

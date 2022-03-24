@@ -3,9 +3,9 @@ package org.chord.sim.server.handler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.chord.sim.common.protocol.request.PullMessagesRequestPacket;
-import org.chord.sim.common.protocol.response.PullMessagesResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
+import org.chord.sim.common.protocol.chat.request.PullMessagesRequestPacket;
+import org.chord.sim.common.protocol.chat.response.PullMessagesResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 import org.chord.sim.server.entity.Message;
 import org.chord.sim.server.service.MessageService;
 import org.chord.sim.server.service.UserService;
@@ -49,21 +49,22 @@ public class PullMessagesRequestHandler extends SimpleChannelInboundHandler<Pull
 
         // 获取发起请求的用户的离线消息
         List<Message> messages = messageService.findOfflineMessageByToId(request.getToUserId());
-        List<org.chord.sim.common.pojo.Message> pojoMessages = new ArrayList<>();
-        for (Message message : messages) {
-            org.chord.sim.common.pojo.Message pojoMessage = new org.chord.sim.common.pojo.Message();
-            String fromUserId = message.getFromId();
-            pojoMessage.setFromId(fromUserId);
-            pojoMessage.setFromUserName(userService.getUserNameById(fromUserId));
-            pojoMessage.setMsgId(message.getMsgId());
-            pojoMessage.setSeqNumber(message.getSeqNumber());
-            pojoMessage.setMsgType(message.getMsgType());
-            pojoMessage.setMsgContent(message.getMsgContent());
+        if (messages != null) {
+            List<org.chord.sim.common.pojo.Message> pojoMessages = new ArrayList<>();
+            for (Message message : messages) {
+                org.chord.sim.common.pojo.Message pojoMessage = new org.chord.sim.common.pojo.Message();
+                String fromUserId = message.getFromId();
+                pojoMessage.setFromId(fromUserId);
+                pojoMessage.setFromUserName(userService.getUserNameById(fromUserId));
+                pojoMessage.setMsgId(message.getMsgId());
+                pojoMessage.setSeqNumber(message.getSeqNumber());
+                pojoMessage.setMsgType(message.getMsgType());
+                pojoMessage.setMsgContent(message.getMsgContent());
 
-            pojoMessages.add(pojoMessage);
+                pojoMessages.add(pojoMessage);
+            }
+            response.setMessages(pojoMessages);
         }
-        response.setMessages(pojoMessages);
-
         // 向channel写入响应包
         ctx.writeAndFlush(response);
     }

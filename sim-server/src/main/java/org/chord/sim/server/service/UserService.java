@@ -2,9 +2,9 @@ package org.chord.sim.server.service;
 
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.chord.sim.common.pojo.User;
-import org.chord.sim.common.protocol.request.AuthenRequestPacket;
-import org.chord.sim.common.protocol.response.AuthenResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
+import org.chord.sim.common.protocol.chat.request.AuthenRequestPacket;
+import org.chord.sim.common.protocol.chat.response.AuthenResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 import org.chord.sim.common.util.RedisKeyUtil;
 import org.chord.sim.server.session.Session;
 import org.slf4j.Logger;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.net.Inet4Address;
@@ -38,6 +37,9 @@ public class UserService {
     @Value("${sim.server.port}")
     private String serverPort;
 
+    @Value("${sim.rpc.server.port}")
+    private String rpcPort;
+
     // 用户认证
     public AuthenResponsePacket authentication(AuthenRequestPacket requestPacket, NioSocketChannel channel) throws UnknownHostException {
 
@@ -56,8 +58,8 @@ public class UserService {
             return responsePacket;
         }
 
-        // 向redis中存入用户连接的服务器地址
-        String serverAddress = Inet4Address.getLocalHost().getHostAddress() + ":" + serverPort;
+        // 向redis中存入用户连接的服务器地址,端口号为RPC服务的端口号
+        String serverAddress = Inet4Address.getLocalHost().getHostAddress() + ":" + rpcPort;
         sessionService.setServerAddress(userId, serverAddress);
 
         // 记录userId和对应的channel
@@ -85,6 +87,7 @@ public class UserService {
         return user.getUserName();
     }
 
+    // 用户下线
     public void logout(String userId) {
         // 移除与channel的对应关系
         sessionService.removeChannel(userId);

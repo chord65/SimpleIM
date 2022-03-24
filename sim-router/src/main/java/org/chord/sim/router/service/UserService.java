@@ -1,9 +1,9 @@
 package org.chord.sim.router.service;
 
-import org.chord.sim.common.protocol.request.LogInRequestPacket;
-import org.chord.sim.common.protocol.request.RegisterRequestPacket;
-import org.chord.sim.common.protocol.response.LogInResponsePacket;
-import org.chord.sim.common.protocol.response.RegisterResponsePacket;
+import org.chord.sim.common.protocol.chat.request.LogInRequestPacket;
+import org.chord.sim.common.protocol.chat.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.chat.response.LogInResponsePacket;
+import org.chord.sim.common.protocol.chat.response.RegisterResponsePacket;
 
 /**
  * @author chord

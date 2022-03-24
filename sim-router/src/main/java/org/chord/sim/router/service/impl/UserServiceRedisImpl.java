@@ -2,11 +2,11 @@ package org.chord.sim.router.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.chord.sim.common.pojo.User;
-import org.chord.sim.common.protocol.request.LogInRequestPacket;
-import org.chord.sim.common.protocol.request.RegisterRequestPacket;
-import org.chord.sim.common.protocol.response.LogInResponsePacket;
-import org.chord.sim.common.protocol.response.RegisterResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
+import org.chord.sim.common.protocol.chat.request.LogInRequestPacket;
+import org.chord.sim.common.protocol.chat.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.chat.response.LogInResponsePacket;
+import org.chord.sim.common.protocol.chat.response.RegisterResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 import org.chord.sim.common.util.RedisKeyUtil;
 import org.chord.sim.common.util.SIMUtils;
 import org.chord.sim.router.Cache.ServerListCache;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;

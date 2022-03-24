@@ -25,9 +25,9 @@ public class P2pChatCommand implements ConsoleCommand{
         }
 
         System.out.println("输入收信方ID：");
-        toUserId = scanner.next();
+        toUserId = scanner.nextLine();
         System.out.println("输入信息：");
-        msg = scanner.next();
+        msg = scanner.nextLine();
 
         simClient.p2pChat(toUserId, msg);
         System.out.println("消息发送中...");

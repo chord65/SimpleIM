@@ -1,6 +1,7 @@
 package org.chord.sim.server.entity;
 
 import lombok.Data;
+import org.springframework.data.relational.core.sql.In;
 
 /**
  * @author chord
@@ -11,13 +12,13 @@ import lombok.Data;
 @Data
 public class Message {
 
-    private int id;
+    private Integer id;
     private String fromId;
     private String toId;
     private String msgId;
     private String seqNumber;
-    private int msgType;
-    private int status;
+    private Integer msgType;
+    private Integer status;
     private String msgContent;
 
 }

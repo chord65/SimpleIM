@@ -1,12 +1,12 @@
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import org.chord.sim.common.protocol.Packet;
-import org.chord.sim.common.protocol.PacketCodec;
-import org.chord.sim.common.protocol.request.RegisterRequestPacket;
-import org.chord.sim.common.protocol.response.RegisterResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
+import org.chord.sim.common.protocol.chat.codec.ChatPacketCodec;
+import org.chord.sim.common.protocol.chat.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.chat.response.RegisterResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 import org.chord.sim.common.serializer.Serializer;
 import org.chord.sim.common.serializer.impl.JSONSerializer;
+import org.chord.sim.common.util.SIMUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,11 +33,11 @@ public class PackerCodecTest {
         System.out.println(registerResponsePacket.getRequestSeqNumber());
         System.out.println(registerResponsePacket.getSeqNumber());
 
-        PacketCodec packetCodec = PacketCodec.INSTANCE;
+        ChatPacketCodec chatPacketCodec = ChatPacketCodec.INSTANCE;
         ByteBuf byteBuf = ByteBufAllocator.DEFAULT.ioBuffer();
 
-        packetCodec.encode(byteBuf, registerResponsePacket);
-        RegisterResponsePacket decodedPacket = (RegisterResponsePacket) packetCodec.decode(byteBuf);
+        chatPacketCodec.encode(byteBuf, registerResponsePacket);
+        RegisterResponsePacket decodedPacket = (RegisterResponsePacket) chatPacketCodec.decode(byteBuf);
 
         if(decodedPacket == null) System.out.println("here");
 
@@ -48,7 +48,6 @@ public class PackerCodecTest {
 
         Serializer serializer = new JSONSerializer();
         Assert.assertArrayEquals(serializer.serialize(registerResponsePacket), serializer.serialize(decodedPacket));
-
 
     }
 

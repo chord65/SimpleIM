@@ -6,10 +6,13 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.chord.sim.client.handler.*;
+import org.chord.sim.client.util.SpringUtils;
+import org.chord.sim.common.handler.IMIdleStateHandler;
 import org.chord.sim.common.handler.PacketCodecHandler;
 import org.chord.sim.common.handler.Splitter;
 import org.chord.sim.common.pojo.User;
-import org.chord.sim.common.protocol.request.*;
+import org.chord.sim.common.protocol.chat.request.*;
+import org.chord.sim.common.util.IdleProcessPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +21,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author chord
@@ -38,16 +43,19 @@ public class SIMClient {
     private String routerHost;
 
     @Value("${sim.router.port}")
-    private int routerPort;
+    private Integer routerPort;
 
     private String serverHost;
-    private int serverPort;
+    private Integer serverPort;
 
     private Bootstrap bootstrapToRouter;
     private Bootstrap bootstrapToServer;
 
     private volatile Channel channelToRouter;
     private volatile Channel channelToServer;
+
+    private final ReentrantLock lockForServerChannel = new ReentrantLock();
+    private final Condition conditionForServerChannel = lockForServerChannel.newCondition();
 
     private volatile User userInfo = new User();
 
@@ -99,10 +107,14 @@ public class SIMClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel channel) throws Exception {
+                        // 空闲检测
+                        channel.pipeline().addLast(new IMIdleStateHandler(SpringUtils.getBean(IdleProcessPolicy.class)));
                         // 拆包
                         channel.pipeline().addLast(new Splitter());
                         // 编解码
                         channel.pipeline().addLast(PacketCodecHandler.INSTANCE);
+                        // 心跳包发送
+                        channel.pipeline().addLast(HeartBeatTimerHandler.INSTANCE);
                         // 处理认证响应
                         channel.pipeline().addLast(AuthenResponseHandler.INSTANCE);
                         // 处理单聊响应
@@ -168,7 +180,9 @@ public class SIMClient {
      */
     public void authentication() throws InterruptedException {
 
-        while (channelToServer == null) Thread.sleep(10);
+        while (channelToServer == null || !channelToServer.isActive()) Thread.sleep(10);
+
+        System.out.println("连接成功，开始认证");
 
         AuthenRequestPacket requestPacket = new AuthenRequestPacket();
         requestPacket.setLogInTicket(logInTicket);
@@ -200,6 +214,17 @@ public class SIMClient {
         requestPacket.setToUserId(userInfo.getUserId());
 
         channelToServer.writeAndFlush(requestPacket);
+    }
+
+    // 重连服务器
+    public void reconnect() {
+        serverHost = null;
+        serverPort = null;
+
+        // 重新登录，登录成功后在LogInResponseHandler可以自动连接到新的服务器上
+        logIn(this.userInfo.getUserId(), this.userInfo.getPassWord());
+
+        LOGGER.info("重新登录到服务器。。。。");
     }
 
     @PreDestroy
@@ -241,5 +266,13 @@ public class SIMClient {
 
     public void setLogInTicket(String logInTicket) {
         this.logInTicket = logInTicket;
+    }
+
+    public String getServerHost() {
+        return serverHost;
+    }
+
+    public Integer getServerPort() {
+        return serverPort;
     }
 }

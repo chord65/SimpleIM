@@ -13,6 +13,8 @@
         <module>sim-client</module>
         <module>sim-common</module>
         <module>sim-router</module>
+        <module>sim-rpc</module>
+        <module>sim-server-api</module>
     </modules>
 
     <parent>
@@ -45,6 +47,12 @@
             <dependency>
                 <groupId>org.chord</groupId>
                 <artifactId>sim-common</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.chord</groupId>
+                <artifactId>sim-server-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 

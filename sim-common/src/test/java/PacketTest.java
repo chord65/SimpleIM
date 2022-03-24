@@ -1,6 +1,6 @@
-import org.chord.sim.common.protocol.request.RegisterRequestPacket;
-import org.chord.sim.common.protocol.response.RegisterResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
+import org.chord.sim.common.protocol.chat.request.RegisterRequestPacket;
+import org.chord.sim.common.protocol.chat.response.RegisterResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 import org.junit.Test;
 
 /**

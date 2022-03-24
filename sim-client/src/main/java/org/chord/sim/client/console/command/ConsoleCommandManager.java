@@ -26,7 +26,7 @@ public class ConsoleCommandManager implements ConsoleCommand{
     public void exec(Scanner scanner) {
         //  获取第一个指令
         System.out.println("输入指令：");
-        String command = scanner.next();
+        String command = scanner.nextLine();
 
         ConsoleCommand consoleCommand = consoleCommandMap.get(command);
 

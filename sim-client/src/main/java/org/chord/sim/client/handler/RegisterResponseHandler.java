@@ -5,9 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.chord.sim.client.client.SIMClient;
 import org.chord.sim.client.util.SpringUtils;
-import org.chord.sim.common.protocol.response.RegisterResponsePacket;
-import org.chord.sim.common.protocol.response.status.Status;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.chord.sim.common.protocol.chat.response.RegisterResponsePacket;
+import org.chord.sim.common.protocol.chat.response.status.Status;
 
 /**
  * @author chord

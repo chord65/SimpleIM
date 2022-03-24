@@ -3,7 +3,7 @@ package org.chord.sim.common.handler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import org.chord.sim.common.protocol.PacketCodec;
+import org.chord.sim.common.protocol.chat.codec.ChatPacketCodec;
 
 /**
  * @author chord
@@ -21,7 +21,7 @@ public class Splitter extends LengthFieldBasedFrameDecoder {
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        if (PacketCodec.getMagicNumber(in) != PacketCodec.MAGIC_NUMBER) {
+        if (ChatPacketCodec.getMagicNumber(in) != ChatPacketCodec.MAGIC_NUMBER) {
             ctx.channel().close();
             return null;
         }
