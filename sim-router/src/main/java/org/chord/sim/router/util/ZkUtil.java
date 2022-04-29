@@ -2,9 +2,8 @@ package org.chord.sim.router.util;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.*;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.chord.sim.router.Cache.ServerListCache;
+import org.chord.sim.router.cache.ServerListCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author chord
@@ -51,7 +48,9 @@ public class ZkUtil {
 
         // 注册监听器
         // 在注册监听器的时候，如果传入此参数，当事件触发时，逻辑由线程池处理
-        ExecutorService pool = Executors.newFixedThreadPool(2);
+        //ExecutorService pool = Executors.newFixedThreadPool(2);
+
+
         // 监听子节点变化
         PathChildrenCache pathChildrenCache = new PathChildrenCache(zkClient, serverPath, true);
         pathChildrenCache.getListenable().addListener(

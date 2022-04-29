@@ -1,4 +1,4 @@
-package org.chord.sim.router.Cache;
+package org.chord.sim.router.cache;
 
 import com.google.common.cache.LoadingCache;
 import org.chord.sim.router.util.ZkUtil;

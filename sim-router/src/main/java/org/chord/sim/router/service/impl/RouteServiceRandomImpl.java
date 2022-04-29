@@ -17,7 +17,7 @@ public class RouteServiceRandomImpl implements RouteService {
     @Override
     public String getServerAddress(List<String> serverList) {
         int size = serverList.size();
-        if (size == 0) {
+        if (size <= 0) {
             return null;
         }
         int offset = ThreadLocalRandom.current().nextInt(size);

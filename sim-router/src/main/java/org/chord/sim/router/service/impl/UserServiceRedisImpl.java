@@ -9,7 +9,7 @@ import org.chord.sim.common.protocol.chat.response.RegisterResponsePacket;
 import org.chord.sim.common.protocol.chat.response.status.Status;
 import org.chord.sim.common.util.RedisKeyUtil;
 import org.chord.sim.common.util.SIMUtils;
-import org.chord.sim.router.Cache.ServerListCache;
+import org.chord.sim.router.cache.ServerListCache;
 import org.chord.sim.router.service.RouteService;
 import org.chord.sim.router.service.UserService;
 import org.slf4j.Logger;
@@ -153,6 +153,12 @@ public class UserServiceRedisImpl implements UserService {
 
         // 路由到一个chat服务器
         String serverAddress = routeService.getServerAddress(serverListCache.getServerList());
+
+        if (serverAddress == null) {
+            responsePacket.setStatus(Status.FAILED);
+            responsePacket.setMsg("登录失败，没有可用的服务器！");
+            return responsePacket;
+        }
 
         responsePacket.setServerAddress(serverAddress);
 
